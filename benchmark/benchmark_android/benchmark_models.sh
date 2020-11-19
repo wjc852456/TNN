@@ -12,7 +12,7 @@ DEVICE_TYPE=""
 MODEL_TYPE=TNN
 USE_NCNN_MODEL=0
 THREAD_NUM=1
-ADB=adb
+ADB="/mnt/c/platform-tools_r30.0.2-windows/platform-tools/adb.exe -s 0123456789ABCDEF"
 
 WORK_DIR=`pwd`
 BENCHMARK_MODEL_DIR=$WORK_DIR/../benchmark-model
@@ -24,7 +24,7 @@ LOOP_COUNT=16
 WARM_UP_COUNT=8
 
 benchmark_model_list=(
-#test.tnnproto \
+mobilenet_v1.tnnproto \
 )
 
 function usage() {
@@ -35,7 +35,7 @@ function usage() {
     echo "        -b    build targets only"
     echo "        -f    build profiling targets "
     echo "        -d    run with specified device"
-    echo "        -t    CPU/GPU specify the platform to run"
+    echo "        -t    CPU/GPU/HUAWEI_NPU specify the platform to run"
 }
 
 function exit_with_msg() {
@@ -56,6 +56,20 @@ function build_android_bench() {
     if [ "-c" == "$CLEAN" ]; then
         clean_build $BUILD_DIR
     fi
+    if [ "$DEVICE_TYPE" = "HUAWEI_NPU"  ]; then
+      echo "NPU Enable"
+      # set c++ shared
+      STL="c++_shared"
+      HUAWEI_NPU_ENABLE="ON"
+      #start to cp
+      if [ ! -d ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/ ]; then
+           mkdir -p ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/
+      fi
+      mkdir -p ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/armeabi-v7a
+      mkdir -p ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/arm64-v8a
+      cp $ANDROID_NDK/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so  ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/armeabi-v7a/
+      cp $ANDROID_NDK/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/arm64-v8a/
+    fi
     mkdir -p build
     cd $BUILD_DIR
     cmake ../../.. \
@@ -67,17 +81,18 @@ function build_android_bench() {
           -DANDROID_TOOLCHAIN=clang \
           -DTNN_ARM_ENABLE:BOOL=ON \
           -DTNN_OPENCL_ENABLE:BOOL=ON \
+          -DTNN_HUAWEI_NPU_ENABLE:BOOL=${HUAWEI_NPU_ENABLE} \
           -DTNN_OPENMP_ENABLE:BOOL=ON \
           -DTNN_TEST_ENABLE:BOOL=ON \
           -DTNN_BENCHMARK_MODE:BOOL=ON \
           -DTNN_PROFILER_ENABLE:BOOL=${PROFILING} \
           -DTNN_BUILD_SHARED:BOOL=$SHARED_LIB \
           -DBUILD_FOR_ANDROID_COMMAND=true
-    make -j4
+    make -j32
 }
 
 function bench_android() {
-    build_android_bench
+    #build_android_bench
 
     if [ $? != 0 ];then
         exit_with_msg "build failed"
@@ -87,12 +102,11 @@ function bench_android() {
         echo "build done!"
         exit 0
     fi
-
     $ADB shell "mkdir -p $ANDROID_DIR"
     find . -name "*.so" | while read solib; do
         $ADB push $solib  $ANDROID_DIR
     done
-    $ADB push test/TNNTest $ANDROID_DIR/TNNTest
+    $ADB push build/test/TNNTest $ANDROID_DIR/TNNTest
     $ADB shell chmod 0777 $ANDROID_DIR/TNNTest
 
     $ADB shell "mkdir -p $ANDROID_DIR/benchmark-model"
@@ -105,7 +119,7 @@ function bench_android() {
         benchmark_model_list=`ls *.tnnproto`
     fi
 
-    if [ "$DEVICE_TYPE" != "GPU" ] && [ "$DEVICE_TYPE" != "CPU" ];then
+    if [ "$DEVICE_TYPE" != "GPU" ] && [ "$DEVICE_TYPE" != "CPU" ] && [ "$DEVICE_TYPE" != "HUAWEI_NPU" ]; then
         DEVICE_TYPE=""
     fi
 
@@ -130,6 +144,18 @@ function bench_android() {
         for benchmark_model in ${benchmark_model_list[*]}
         do
             $ADB shell "cd ${ANDROID_DIR}; LD_LIBRARY_PATH=. ./TNNTest -th ${THREAD_NUM} -wc ${WARM_UP_COUNT} -ic ${LOOP_COUNT} -dt ${device} -mt ${MODEL_TYPE} -mp ${ANDROID_DATA_DIR}/${benchmark_model}  >> $OUTPUT_LOG_FILE"
+        done
+    fi
+
+    if [ "$DEVICE_TYPE" = "HUAWEI_NPU" ];then
+        echo "Run Huawei Npu"
+        device=HUAWEI_NPU
+	    $ADB push ${WORK_DIR}/../../third_party/huawei_npu/cpp_lib/${ABI}/* $ANDROID_DIR/
+        $ADB push ${WORK_DIR}/../../third_party/huawei_npu/hiai_ddk_latest/${ABI}/* $ANDROID_DIR/
+        $ADB shell "echo '\nbenchmark device: ${device} \n' >> ${ANDROID_DIR}/$OUTPUT_LOG_FILE"
+        for benchmark_model in ${benchmark_model_list[*]}
+        do
+            $ADB shell "cd ${ANDROID_DIR}; LD_LIBRARY_PATH=. ./TNNTest -th ${THREAD_NUM} -wc ${WARM_UP_COUNT} -ic ${LOOP_COUNT} -dt ${device} -nt ${device} -mt ${MODEL_TYPE} -mp ${ANDROID_DATA_DIR}/${benchmark_model}  >> $OUTPUT_LOG_FILE"
         done
     fi
 
