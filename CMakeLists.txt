@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
-
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g -ggdb")
 project(TNN)
 
 ENABLE_LANGUAGE(ASM)
@@ -23,8 +24,8 @@ option(TNN_SYMBOL_HIDE "Enable Hide Symbol Visibility" ON)
 
 option(TNN_OPENMP_ENABLE "Enable OpenMP" OFF)
 option(TNN_BUILD_SHARED "Build Shared Library" ON)
-option(TNN_TEST_ENABLE "Enable Test" OFF)
-option(TNN_UNIT_TEST_ENABLE "Enable Test" OFF)
+option(TNN_TEST_ENABLE "Enable Test" ON)
+option(TNN_UNIT_TEST_ENABLE "Enable Test" ON)
 option(TNN_PROFILER_ENABLE "Enable Test" OFF)
 option(TNN_QUANTIZATION_ENABLE "Enable Test" OFF)
 option(TNN_MODEL_CHECK_ENABLE "Enable Test" OFF)
