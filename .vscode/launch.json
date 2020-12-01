@@ -8,12 +8,12 @@
             "name": "unit_test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/w00513892/TNN/build/test/unit_test/unit_test",
+            "program": "/home/jcwang/TNN_wjc/build/test/unit_test/unit_test",
             "args": [
                     "--dt=NAIVE",
             ],
             "stopAtEntry": false,
-            "cwd": "/home/w00513892/TNN/build/test/unit_test/",
+            "cwd": "/home/jcwang/TNN_wjc/build/test/unit_test/",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -29,17 +29,17 @@
             "name": "test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/w00513892/TNN/build/test/TNNTest",
+            "program": "/home/jcwang/TNN_wjc/build/test/TNNTest",
             "args": [
                 "-th", "1", 
                 "-wc", "8", 
                 "-ic", "16", 
                 "-dt", "NAIVE", 
                 "-mt", "TNN", 
-                "-mp", "/home/w00513892/TNN/model/SqueezeNet/squeezenet_v1.1.tnnproto"
+                "-mp", "/home/jcwang/TNN_wjc/model/SqueezeNet/squeezenet_v1.1.tnnproto"
             ],
             "stopAtEntry": false,
-            "cwd": "/home/w00513892/TNN/build/test/",
+            "cwd": "/home/jcwang/TNN_wjc/build/test/",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -51,7 +51,7 @@
                 }
             ],
             "sourceFileMap": {
-                "/build/glibc-e6zv40": "/usr/src/glibc"
+                "/build/glibc-2ORdQG": "/usr/src/glibc"
             }
         }
     ]

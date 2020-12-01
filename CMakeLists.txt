@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
-set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g -ggdb")
 project(TNN)
 
 ENABLE_LANGUAGE(ASM)
-
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
 set(TNN_MAJOR_VERSION 0)
 set(TNN_MINOR_VERSION 1)
 set(TNN_PATCH_VERSION 0)
