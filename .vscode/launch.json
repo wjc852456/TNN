@@ -1,0 +1,58 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "unit_test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/w00513892/TNN/build/test/unit_test/unit_test",
+            "args": [
+                    "--dt=NAIVE",
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/w00513892/TNN/build/test/unit_test/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/w00513892/TNN/build/test/TNNTest",
+            "args": [
+                "-th", "1", 
+                "-wc", "8", 
+                "-ic", "16", 
+                "-dt", "NAIVE", 
+                "-mt", "TNN", 
+                "-mp", "/home/w00513892/TNN/model/SqueezeNet/squeezenet_v1.1.tnnproto"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/w00513892/TNN/build/test/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "sourceFileMap": {
+                "/build/glibc-e6zv40": "/usr/src/glibc"
+            }
+        }
+    ]
+}
